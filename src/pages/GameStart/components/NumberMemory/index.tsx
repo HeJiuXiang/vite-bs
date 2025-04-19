@@ -22,6 +22,8 @@ const NumberMemory: React.FC = () => {
     const [is4x4Mode, setIs4x4Mode] = useState(false);
     const [isShuffleMode, setIsShuffleMode] = useState(false);
     const [isTransitioning, setIsTransitioning] = useState(false);
+    const [gameTime, setGameTime] = useState(0);
+    const [isTiming, setIsTiming] = useState(false);
 
     // 初始化卡片
     useEffect(() => {
@@ -66,6 +68,8 @@ const NumberMemory: React.FC = () => {
         setCurrentStep(0);
         setCountdown(is4x4Mode ? 16 : 9);
         setShowCountdown(false);
+        setGameTime(0);
+        setIsTiming(false);
 
         // 重置所有卡片
         setCards(prevCards => prevCards.map(card => ({
@@ -100,6 +104,8 @@ const NumberMemory: React.FC = () => {
                         setCards(prevCards =>
                             prevCards.map(card => ({ ...card, isFlipped: false }))
                         );
+                        // 开始游戏计时
+                        setIsTiming(true);
                         return 0;
                     }
                     return prev - 1;
@@ -109,6 +115,19 @@ const NumberMemory: React.FC = () => {
 
         flipSequence();
     };
+
+    // 添加计时器效果
+    useEffect(() => {
+        let timer: ReturnType<typeof setInterval>;
+        if (isTiming && !gameOver) {
+            timer = setInterval(() => {
+                setGameTime(prev => prev + 1);
+            }, 1000);
+        }
+        return () => {
+            if (timer) clearInterval(timer);
+        };
+    }, [isTiming, gameOver]);
 
     // 处理卡片点击
     const handleCardClick = async (card: Card) => {
@@ -135,7 +154,8 @@ const NumberMemory: React.FC = () => {
 
             if (nextNumber === (is4x4Mode ? 16 : 9)) {
                 // 挑战成功
-                setResultMessage('恭喜你挑战成功！');
+                setIsTiming(false);
+                setResultMessage(`恭喜你挑战成功！用时${gameTime}秒`);
                 setShowResult(true);
                 setGameOver(true);
             }
@@ -146,7 +166,8 @@ const NumberMemory: React.FC = () => {
                     c.id === card.id ? { ...c, isError: true } : c
                 )
             );
-            setResultMessage('游戏结束！');
+            setIsTiming(false);
+            setResultMessage(`游戏结束！用时${gameTime}秒`);
             setShowResult(true);
             setGameOver(true);
         }
@@ -162,6 +183,8 @@ const NumberMemory: React.FC = () => {
         setNextNumber(1);
         setCurrentStep(0);
         setCountdown(9);
+        setGameTime(0);
+        setIsTiming(false);
 
         // 重置所有卡片
         setCards(prevCards => prevCards.map(card => ({
@@ -199,6 +222,10 @@ const NumberMemory: React.FC = () => {
 
                     {showCountdown && countdown > 0 && (
                         <div className="countdown">倒计时: {countdown}秒</div>
+                    )}
+
+                    {isTiming && !gameOver && (
+                        <div className="countdown">游戏时间: {gameTime}秒</div>
                     )}
 
                     {showResult && (
