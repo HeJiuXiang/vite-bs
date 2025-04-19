@@ -20,20 +20,7 @@ body,
 
 .ant-layout-content {
     height: calc(100vh - 64px);
-    overflow-y: auto;
-
-    &::-webkit-scrollbar {
-        width: 6px;
-    }
-
-    &::-webkit-scrollbar-thumb {
-        background-color: #434343;
-        border-radius: 3px;
-    }
-
-    &::-webkit-scrollbar-track {
-        background-color: #1f1f1f;
-    }
+    overflow: hidden;
 }
 
 // 统一的容器样式
@@ -52,20 +39,7 @@ body,
         padding: 20px;
         border-radius: 8px;
         height: calc(100% - 60px); // 减去标题和padding的高度
-        overflow: auto;
-
-        &::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        &::-webkit-scrollbar-thumb {
-            background-color: #434343;
-            border-radius: 3px;
-        }
-
-        &::-webkit-scrollbar-track {
-            background-color: #1f1f1f;
-        }
+        overflow: hidden;
     }
 
     h1 {

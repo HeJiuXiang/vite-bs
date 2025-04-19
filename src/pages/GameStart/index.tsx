@@ -33,7 +33,7 @@ const GameStart: React.FC = () => {
 
     return (
         <div className="game-start-container">
-            <h1>开始游戏</h1>
+            <h1 className="game-start-title">开始游戏</h1>
             {currentGame ? (
                 <div className="game-content">
                     <button className="back-button" onClick={handleBack}>返回</button>
