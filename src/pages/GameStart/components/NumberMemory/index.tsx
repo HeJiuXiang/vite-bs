@@ -19,10 +19,18 @@ const NumberMemory: React.FC = () => {
     const [showResult, setShowResult] = useState(false);
     const [resultMessage, setResultMessage] = useState('');
     const [showCountdown, setShowCountdown] = useState(false);
+    const [is4x4Mode, setIs4x4Mode] = useState(false);
+    const [isShuffleMode, setIsShuffleMode] = useState(false);
+    const [isTransitioning, setIsTransitioning] = useState(false);
 
     // 初始化卡片
     useEffect(() => {
-        const numbers = Array.from({ length: 9 }, (_, i) => i + 1);
+        initializeCards();
+    }, [is4x4Mode]);
+
+    const initializeCards = () => {
+        const cardCount = is4x4Mode ? 16 : 9;
+        const numbers = Array.from({ length: cardCount }, (_, i) => i + 1);
         const shuffledNumbers = [...numbers].sort(() => Math.random() - 0.5);
         const initialCards = shuffledNumbers.map((number, index) => ({
             id: index,
@@ -31,7 +39,24 @@ const NumberMemory: React.FC = () => {
             isMatched: false
         }));
         setCards(initialCards);
-    }, []);
+    };
+
+    // 切换4x4模式
+    const toggle4x4Mode = () => {
+        if (gameStarted) return;
+        setIsTransitioning(true);
+        setTimeout(() => {
+            setIs4x4Mode(!is4x4Mode);
+            setCountdown(is4x4Mode ? 9 : 16);
+            setIsTransitioning(false);
+        }, 500);
+    };
+
+    // 切换换牌模式
+    const toggleShuffleMode = () => {
+        if (gameStarted) return;
+        setIsShuffleMode(!isShuffleMode);
+    };
 
     // 开始游戏
     const startGame = () => {
@@ -39,7 +64,7 @@ const NumberMemory: React.FC = () => {
         setGameOver(false);
         setNextNumber(1);
         setCurrentStep(0);
-        setCountdown(9);
+        setCountdown(is4x4Mode ? 16 : 9);
         setShowCountdown(false);
 
         // 重置所有卡片
@@ -108,7 +133,7 @@ const NumberMemory: React.FC = () => {
             );
             setNextNumber(prev => prev + 1);
 
-            if (nextNumber === 9) {
+            if (nextNumber === (is4x4Mode ? 16 : 9)) {
                 // 挑战成功
                 setResultMessage('恭喜你挑战成功！');
                 setShowResult(true);
@@ -153,9 +178,23 @@ const NumberMemory: React.FC = () => {
             <div className="game-content">
                 <div className="game-header">
                     {!gameStarted && !gameOver && (
-                        <button className="start-button" onClick={startGame}>
-                            开始游戏
-                        </button>
+                        <div className="mode-controls">
+                            <button
+                                className={`mode-button ${is4x4Mode ? 'active' : ''}`}
+                                onClick={toggle4x4Mode}
+                            >
+                                {is4x4Mode ? '4x4模式' : '3x3模式'}
+                            </button>
+                            <button
+                                className={`mode-button ${isShuffleMode ? 'active' : ''}`}
+                                onClick={toggleShuffleMode}
+                            >
+                                换牌模式
+                            </button>
+                            <button className="start-button" onClick={startGame}>
+                                开始游戏
+                            </button>
+                        </div>
                     )}
 
                     {showCountdown && countdown > 0 && (
@@ -172,7 +211,7 @@ const NumberMemory: React.FC = () => {
                     )}
                 </div>
 
-                <div className="card-grid">
+                <div className={`card-grid ${is4x4Mode ? 'grid-4x4' : 'grid-3x3'} ${isTransitioning ? 'transitioning' : ''}`}>
                     {cards.map(card => (
                         <div
                             key={card.id}
